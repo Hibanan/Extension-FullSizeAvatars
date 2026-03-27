@@ -1,31 +1,17 @@
 # Fullsize Chat Avatars
 
-A SillyTavern extension that replaces low-resolution avatar thumbnails in chat messages with the original avatar source image.
-
-## What It Does
-
-- Replaces avatar thumbnail image URLs with the source image
-- Lets you toggle character avatars and persona avatars independently
+A vibecoded SillyTavern extension that replaces low-resolution thumbnails in chat messages with the original source image (can toggle character avatars and persona avatars independently).
 
 ## Installation
 
-1. Copy this folder to your SillyTavern extensions directory as `Extension-FullSizeAvatars`.
-2. Start or restart SillyTavern.
-3. Open **Extensions** and enable **Fullsize Chat Avatars** if needed.
+1. Copy this folder to your SillyTavern extensions directory (ST\data\default-user\extensions\).
+2. Restart SillyTavern.
+3. Open **Extensions** and enable **Fullsize Chat Avatars**.
 
-## Settings
+## About
 
-- **Replace character avatars**: use full source images for character avatars
-- **Replace persona avatars**: use full source images for persona avatars
-- **Refresh avatars**: forces re-apply on current chat messages
+Built for version 0.16.0 of SillyTavern.
 
-## Files
+## License
 
-- `manifest.json` - extension metadata for SillyTavern
-- `index.js` - extension logic and settings UI hooks
-- `style.css` - avatar and settings styling
-
-## Publishing Notes (Private GitHub Repo)
-
-- This project is ready for direct push to a private GitHub repository.
-- Before sharing externally, update `author` and `version` in `manifest.json` as needed.
+CC0
