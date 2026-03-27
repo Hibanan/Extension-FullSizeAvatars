@@ -1,0 +1,9 @@
+{
+  "display_name": "Fullsize Chat Avatars",
+  "loading_order": 777,
+  "js": "index.js",
+  "css": "style.css",
+  "author": "Hibanan",
+  "version": "1.0.0",
+  "minimum_client_version": "1.16.0"
+}
