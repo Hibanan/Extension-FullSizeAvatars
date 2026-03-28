@@ -379,21 +379,21 @@ function bindSettingsUi() {
     if (state.uiBound) return;
     state.uiBound = true;
 
-    $(document).on('input change', '#fsca_replace_character', (event) => {
+    $(document).on('change', '#fsca_replace_character', (event) => {
         const settings = getSettings();
         settings.replaceCharacterAvatars = Boolean($(event.currentTarget).prop('checked'));
         saveSettings();
         queueAvatarRefresh();
     });
 
-    $(document).on('input change', '#fsca_replace_persona', (event) => {
+    $(document).on('change', '#fsca_replace_persona', (event) => {
         const settings = getSettings();
         settings.replacePersonaAvatars = Boolean($(event.currentTarget).prop('checked'));
         saveSettings();
         queueAvatarRefresh();
     });
 
-    $(document).on('input change', '#fsca_debug_clicks', (event) => {
+    $(document).on('change', '#fsca_debug_clicks', (event) => {
         const settings = getSettings();
         settings.debugAvatarClicks = Boolean($(event.currentTarget).prop('checked'));
         saveSettings();
@@ -461,4 +461,3 @@ jQuery(() => {
 
     window.updateAvatars = updateAllAvatars;
 });
-
