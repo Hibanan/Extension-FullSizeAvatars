@@ -10,7 +10,7 @@ A vibecoded SillyTavern extension that replaces low-resolution thumbnails in cha
 
 ## About
 
-Built for version 0.16.0 of SillyTavern.
+Tested against version 1.17.0 of SillyTavern.
 
 ## License
 
