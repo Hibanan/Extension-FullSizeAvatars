@@ -4,7 +4,7 @@ A vibecoded SillyTavern extension that replaces low-resolution thumbnails in cha
 
 ## Installation
 
-1. Copy this folder to your SillyTavern extensions directory (ST\data\default-user\extensions\).
+1. Use the built-in extension installer or copy the extension to `ST\data\default-user\extensions\`.
 2. Restart SillyTavern.
 3. Open **Extensions** and enable **Fullsize Chat Avatars**.
 
