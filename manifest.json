@@ -4,6 +4,7 @@
   "js": "index.js",
   "css": "style.css",
   "author": "Hibanan",
-  "version": "1.0.1",
+  "auto_update": true,
+  "version": "1.0.2",
   "homePage": "https://github.com/Hibanan/Extension-FullSizeAvatars"
 }
