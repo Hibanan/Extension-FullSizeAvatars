@@ -3,6 +3,7 @@ const MODULE_NAME = 'fullsize-chat-avatars';
 const defaultSettings = Object.freeze({
     replaceCharacterAvatars: true,
     replacePersonaAvatars: true,
+    debugAvatarClicks: false,
 });
 
 const state = {
@@ -41,6 +42,15 @@ function getSettings() {
 function saveSettings() {
     const context = getContext();
     context.saveSettingsDebounced?.();
+}
+
+function isDebugAvatarClicksEnabled() {
+    return Boolean(getSettings().debugAvatarClicks);
+}
+
+function debugLog(...args) {
+    if (!isDebugAvatarClicksEnabled()) return;
+    console.debug(`[${MODULE_NAME}]`, ...args);
 }
 
 function stripOrigin(url = '') {
@@ -179,12 +189,12 @@ function applyAvatarToMessage(messageElement) {
     const settings = getSettings();
 
     const sourceCandidate =
-        mes.dataset.avatarOriginal ||
-        mes.dataset.avatarThumb ||
-        avatarImg.getAttribute('data-avatar-original') ||
-        avatarImg.getAttribute('data-avatar-thumb') ||
-        avatarImg.getAttribute('src') ||
+        mes.dataset.fscaAvatarOriginal ||
+        mes.dataset.fscaAvatarThumb ||
+        avatarImg.getAttribute('data-fsca-avatar-original') ||
+        avatarImg.getAttribute('data-fsca-avatar-thumb') ||
         avatarImg.getAttribute('data-src') ||
+        avatarImg.getAttribute('src') ||
         '';
 
     if (!sourceCandidate) return;
@@ -193,27 +203,35 @@ function applyAvatarToMessage(messageElement) {
     const thumbUrl = thumb || original || sourceCandidate;
     const originalUrl = original || thumbUrl;
     const useOriginal = shouldUseOriginalForType(type, settings);
-    const targetUrl = useOriginal ? originalUrl : thumbUrl;
+    const displayUrl = useOriginal ? originalUrl : thumbUrl;
 
-    if (!targetUrl) return;
+    if (!thumbUrl || !displayUrl) return;
 
-    mes.dataset.avatarThumb = thumbUrl;
-    mes.dataset.avatarOriginal = originalUrl;
-    mes.dataset.avatar = targetUrl;
+    mes.dataset.fscaAvatarThumb = thumbUrl;
+    mes.dataset.fscaAvatarOriginal = originalUrl;
+    mes.dataset.fscaAvatarDisplay = displayUrl;
 
     mes.style.setProperty('--mes-avatar-thumb-url', `url("${thumbUrl}")`);
     mes.style.setProperty('--mes-avatar-original-url', `url("${originalUrl}")`);
-    mes.style.setProperty('--mes-avatar-url', `url("${targetUrl}")`);
+    mes.style.setProperty('--mes-avatar-url', `url("${displayUrl}")`);
 
-    avatarImg.setAttribute('data-avatar-thumb', thumbUrl);
-    avatarImg.setAttribute('data-avatar-original', originalUrl);
-    avatarImg.setAttribute('data-src', targetUrl);
+    avatarImg.setAttribute('data-fsca-avatar-thumb', thumbUrl);
+    avatarImg.setAttribute('data-fsca-avatar-original', originalUrl);
+    avatarImg.setAttribute('data-fsca-avatar-display', displayUrl);
     avatarImg.setAttribute('data-fullsize-avatar', useOriginal ? 'true' : 'false');
     avatarImg.setAttribute('data-avatar-type', type || 'unknown');
     avatarImg.decoding = 'async';
 
-    if (avatarImg.getAttribute('src') !== targetUrl) {
-        avatarImg.setAttribute('src', targetUrl);
+    // Keep src in SillyTavern's expected thumbnail shape (contains ?file=...)
+    // so its built-in avatar click-to-zoom parser still works.
+    if (avatarImg.getAttribute('src') !== thumbUrl) {
+        avatarImg.setAttribute('src', thumbUrl);
+    }
+
+    if (useOriginal && originalUrl !== thumbUrl) {
+        avatarImg.setAttribute('srcset', `${originalUrl} 1x`);
+    } else {
+        avatarImg.removeAttribute('srcset');
     }
 }
 
@@ -257,6 +275,29 @@ function bindAvatarClickCompatibility() {
         const img = avatar.querySelector('img');
         if (!img) return;
 
+        const message = avatar.closest('.mes');
+        const srcBefore = img.getAttribute('src') || '';
+        const dataSrc = img.getAttribute('data-src') || '';
+        const fscaThumb = img.getAttribute('data-fsca-avatar-thumb') || '';
+        const fscaOriginal = img.getAttribute('data-fsca-avatar-original') || '';
+        const legacyThumb = img.getAttribute('data-avatar-thumb') || '';
+        const legacyOriginal = img.getAttribute('data-avatar-original') || '';
+
+        debugLog('avatar click', {
+            mesId: message?.getAttribute('mesid') || null,
+            isUser: message?.getAttribute('is_user') || null,
+            isSystem: message?.getAttribute('is_system') || null,
+            eventTargetClass: event.target instanceof Element ? event.target.className : null,
+            src: srcBefore,
+            dataSrc,
+            fscaThumb,
+            fscaOriginal,
+            legacyThumb,
+            legacyOriginal,
+            parsedSrc: parseAvatarSource(srcBefore),
+            parsedDataSrc: parseAvatarSource(dataSrc),
+        });
+
         const fallbackSrc =
             img.getAttribute('src') ||
             img.getAttribute('data-avatar-thumb') ||
@@ -265,6 +306,12 @@ function bindAvatarClickCompatibility() {
 
         if (fallbackSrc && !img.getAttribute('src')) {
             img.setAttribute('src', fallbackSrc);
+            debugLog('applied fallback src', { fallbackSrc });
+        } else {
+            debugLog('fallback not applied', {
+                hasSrc: Boolean(img.getAttribute('src')),
+                fallbackSrc: fallbackSrc || null,
+            });
         }
     }, true);
 }
@@ -293,6 +340,11 @@ function renderSettingsUi() {
                     <input id="fsca_replace_persona" type="checkbox" />
                 </label>
 
+                <label class="fsca-row">
+                    <span>Debug avatar click logs</span>
+                    <input id="fsca_debug_clicks" type="checkbox" />
+                </label>
+
                 <div class="fsca-actions">
                     <button id="fsca_refresh" class="menu_button">Refresh avatars</button>
                 </div>
@@ -308,6 +360,7 @@ function syncSettingsUi() {
 
     const replaceCharacter = document.getElementById('fsca_replace_character');
     const replacePersona = document.getElementById('fsca_replace_persona');
+    const debugClicks = document.getElementById('fsca_debug_clicks');
 
     if (replaceCharacter) {
         replaceCharacter.checked = Boolean(settings.replaceCharacterAvatars);
@@ -315,6 +368,10 @@ function syncSettingsUi() {
 
     if (replacePersona) {
         replacePersona.checked = Boolean(settings.replacePersonaAvatars);
+    }
+
+    if (debugClicks) {
+        debugClicks.checked = Boolean(settings.debugAvatarClicks);
     }
 }
 
@@ -334,6 +391,19 @@ function bindSettingsUi() {
         settings.replacePersonaAvatars = Boolean($(event.currentTarget).prop('checked'));
         saveSettings();
         queueAvatarRefresh();
+    });
+
+    $(document).on('input change', '#fsca_debug_clicks', (event) => {
+        const settings = getSettings();
+        settings.debugAvatarClicks = Boolean($(event.currentTarget).prop('checked'));
+        saveSettings();
+
+        if (window.toastr) {
+            toastr.info(
+                `Debug avatar click logs ${settings.debugAvatarClicks ? 'enabled' : 'disabled'}.`,
+                'Fullsize Chat Avatars',
+            );
+        }
     });
 
     $(document).on('click', '#fsca_refresh', () => {
