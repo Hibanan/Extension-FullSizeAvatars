@@ -1,4 +1,4 @@
-#fsca_settings .inline-drawer-content {
+#fsca_settings .fsca-content {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;

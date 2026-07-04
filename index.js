@@ -326,6 +326,7 @@ function renderSettingsUi() {
                 <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
             </div>
             <div class="inline-drawer-content">
+                <div class="fsca-content">
                 <div class="fsca-note">
                     Replace chat avatar thumbnails with original source images.
                 </div>
@@ -347,6 +348,7 @@ function renderSettingsUi() {
 
                 <div class="fsca-actions">
                     <button id="fsca_refresh" class="menu_button">Refresh avatars</button>
+                </div>
                 </div>
             </div>
         </div>
